@@ -6,7 +6,7 @@ using namespace std;
 
 OrdenadorUniversal::OrdenadorUniversal(int tam){
     resetStats();
-    custos = new Estatisticas[6];
+    custos = new Estatisticas[20];
 }
 
 OrdenadorUniversal::~OrdenadorUniversal(){}
@@ -18,12 +18,18 @@ void OrdenadorUniversal::ordenador(int *V, int tam, int minTamParticao, int limi
     if (numQuebras < limiarQuebras) 
         insertionSort(V, 0, tam-1);   
     else if (tam > minTamParticao) 
-        quickSort3Ins(V, 0, tam-1) ;
+        quickSort3(V, 0, tam-1) ;
     else 
         insertionSort(V, 0, tam-1);
 }
 
 int OrdenadorUniversal::determinaLimiarQuebras(int *V, int tam, int limiarCusto){
+    // Para não perder o vetor V original
+    int *backup = new int[tam];
+    for (int i = 0; i < tam; i++) {
+        backup[i] = V[i];
+    }
+    
     int limiarQuebras,
         minQuebras = 0, 
         maxQuebras = tam,
@@ -38,14 +44,25 @@ int OrdenadorUniversal::determinaLimiarQuebras(int *V, int tam, int limiarCusto)
         cout << "iter " << index << endl;
 
         for (int lq = minQuebras; lq <= maxQuebras; lq += passoQuebra) {
-            // QuickSort
+            // Para restaurar o V original
+            for (int i = 0; i < tam; i++) {
+                V[i] = backup[i];
+            }
+
+            // QuickSort somente
             ordenador(V, tam, 0, lq); // 'tam' como minTamParticao para forçar a escolha baseada no limiar de quebras
             registraEstatisticas(numQuebras, lq); // Registra as estatísticas para este limiar de quebras
             cout << "qs lq " << lq << " ";
             imprimeEstatisticas(numQuebras);
             resetStats();
 
-            // InsertionSort
+
+            // Para restaurar o V original
+            for (int i = 0; i < tam; i++) {
+                V[i] = backup[i];
+            }
+
+            // InsertionSort somente - sobreescrevendo as stats do quick --> a que importa é a do insertion
             ordenador(V, tam, tam+1, lq); // 'tam' como minTamParticao para forçar a escolha baseada no limiar de quebras
             registraEstatisticas(numQuebras, lq); // Registra as estatísticas para este limiar de quebras
             cout << "in lq " << lq << " ";
@@ -55,28 +72,59 @@ int OrdenadorUniversal::determinaLimiarQuebras(int *V, int tam, int limiarCusto)
 
             numQuebras++;
         }
+        // Indice com menor custo (do Insertion puro)
+        limiarQuebras = menorCusto(numQuebras); // Encontra o limiar de quebras com menor custo registrado
+        calculaNovaFaixaQuebra(limiarQuebras, minQuebras, maxQuebras, passoQuebra, numQuebras);
+        diffCusto = custos[0].valorCusto - custos[numQuebras-1].valorCusto;
+        diffCusto = diffCusto < 0? -diffCusto : diffCusto;
 
-        limiarQuebras = menorCusto(tam); // Encontra o limiar de quebras com menor custo registrado
-        calculaNovaFaixaQuebras(limiarQuebras, minQuebras, maxQuebras, passoQuebra, numQuebras);
-        diffCusto = (custos[minQuebras].valorCusto - custos[maxQuebras].valorCusto) < 0 ?
-                   -(custos[minQuebras].valorCusto - custos[maxQuebras].valorCusto) :
-                    (custos[minQuebras].valorCusto - custos[maxQuebras].valorCusto);
         index++;
         resetCustos();
         cout << endl;
     } while ((diffCusto > limiarCusto) && (numQuebras >= 5));
 
-    cout << "numq " << index - 1 << " limQuebras " << limiarQuebras << " qdiff " ; // ARRUMAR - o que é qdiff
-    return limiarQuebras;
+    cout << "numq " << index - 1 << " limQuebras " << limiarQuebras << " lqdiff " << diffCusto << endl; // ARRUMAR - o que é qdiff
+    return custos[limiarQuebras].mps; 
+}
+
+
+void OrdenadorUniversal::calculaNovaFaixaQuebra(int limQuebras, int &minQuebras, int &maxQuebras, int &passoQuebras, int numQuebras){
+    int newMin, newMax;
+    
+    if (limQuebras == 0) {
+        newMin = 0;
+        newMax = 2;
+    } else if (limQuebras == numQuebras - 1) {
+        newMin = numQuebras - 3;
+        newMax = numQuebras - 1;
+    } else {
+        newMin = limQuebras - 1;
+        newMax = limQuebras + 1;
+    }
+    
+    minQuebras = custos[newMin].mps;
+    maxQuebras = custos[newMax].mps;
+
+    passoQuebras = (int)(maxQuebras - minQuebras) / 5;
+    
+    if (passoQuebras == 0) {
+        passoQuebras++;
+    }
 }
 
 
 
 int OrdenadorUniversal::determinaLimiarParticao(int *V, int tam, int limiarCusto) {
-    int minMPS = 2, 
+    // Para não perder o vetor V original
+    int *backup = new int[tam];
+    for (int i = 0; i < tam; i++) {
+        backup[i] = V[i];
+    }
+
+    int minMPS_valor = 2, 
         numMPS, 
-        maxMPS = tam,
-        passoMPS = (maxMPS - minMPS) / 5,
+        maxMPS_valor = tam,
+        passoMPS = (maxMPS_valor - minMPS_valor) / 5,
         limParticao,
         index = 0;
     long double diffCusto = 0;
@@ -85,7 +133,13 @@ int OrdenadorUniversal::determinaLimiarParticao(int *V, int tam, int limiarCusto
         numMPS = 0;
         cout << "iter " << index << endl;
         
-        for (int t = minMPS; t <= maxMPS; t += passoMPS) {
+        for (int t = minMPS_valor; t <= maxMPS_valor; t += passoMPS) {
+            // Para restaurar o V original
+            for (int i = 0; i < tam; i++) {
+                V[i] = backup[i];
+            }
+
+            // Testar com o t atual
             ordenador(V, tam, t, tam);
             registraEstatisticas(numMPS, t);
             cout << "mps " << t << " ";
@@ -93,21 +147,22 @@ int OrdenadorUniversal::determinaLimiarParticao(int *V, int tam, int limiarCusto
             resetStats(); 
             numMPS++;
         }
-        
-        limParticao = menorCusto(tam);
-        calculaNovaFaixa(limParticao, minMPS, maxMPS, passoMPS, numMPS);
-        diffCusto = (custos[minMPS].valorCusto - custos[maxMPS].valorCusto) < 0 ?
-                   -(custos[minMPS].valorCusto - custos[maxMPS].valorCusto) : 
-                    (custos[minMPS].valorCusto - custos[maxMPS].valorCusto);
+        // Acha índice de menor custo e calcula novos valores
+        limParticao = menorCusto(numMPS);
+        calculaNovaFaixa(limParticao, minMPS_valor, maxMPS_valor, passoMPS, numMPS);
+        diffCusto = custos[0].valorCusto - custos[numMPS-1].valorCusto;
+        diffCusto = diffCusto < 0 ? -diffCusto : diffCusto;
+                   
         index++;
         resetCustos();
         cout << endl;
     } while ((diffCusto > limiarCusto) && (numMPS >= 5));
-    cout << "nummps " << index-1 << " limParticao " << limParticao << " mpsdiff " ; // ARRUMAR - oq é mpsdiff
-    return limParticao;
+    cout << "nummps " << index-1 << " limParticao " << limParticao << " mpsdiff " << diffCusto << endl; // ARRUMAR - oq é mpsdiff
+    // return limParticao;
+    return custos[limParticao].mps;
 }
 
-void OrdenadorUniversal::calculaNovaFaixa(int limParticao, int minMPS, int maxMPS, int passoMPS, int numMPS){
+void OrdenadorUniversal::calculaNovaFaixa(int limParticao, int &minMPS, int &maxMPS, int &passoMPS, int numMPS){
     int newMin, newMax;
     
     if (limParticao == 0) {
@@ -133,10 +188,10 @@ void OrdenadorUniversal::calculaNovaFaixa(int limParticao, int minMPS, int maxMP
 }
 
 
-int OrdenadorUniversal::menorCusto(int tam) {
+int OrdenadorUniversal::menorCusto(int num) {
     int menorIdx = 0;
-    for (int i = 1; i < tam; i++) {
-        if (custos[i].valorCusto < custos[menorIdx].valorCusto)
+    for (int i = 1; i < num; i++) {
+        if ( (custos[i].valorCusto >=0)  && (custos[i].valorCusto < custos[menorIdx].valorCusto) )
             menorIdx = i;
     }
     return menorIdx;
@@ -247,23 +302,19 @@ void OrdenadorUniversal::partition3(int * A, int l, int r, int *i, int *j){
 }
 
 // quicksort with insertion for small partitions and median of 3
-void OrdenadorUniversal::quickSort3Ins(int * A, int l, int r) { // ARRUMAR - acho q é sem insertio, visto q o insertion é em outra func
-    calls += 2;
+void OrdenadorUniversal::quickSort3(int * A, int l, int r) { // ARRUMAR - acho q é sem insertio, visto q o insertion é em outra func
+    if(l >= r)
+    return;
 
     int i, j;
+
     partition3(A, l, r, &i, &j);
-    
-    if(j > l)
-      if(j - l <= 50)
-        insertionSort(A, l, j);  
-      else
-        quickSort3Ins(A, l, j);
-  
-    if(r > i)
-      if(r - i <= 50)
-        insertionSort(A, i, r);  
-      else
-        quickSort3Ins(A, i, r);
+
+    calls++;
+    quickSort3(A, l, j);
+
+    calls++;
+    quickSort3(A, i, r);
 }
   
 
