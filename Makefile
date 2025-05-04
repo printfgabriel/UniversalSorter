@@ -5,7 +5,7 @@ SRC_DIR = src
 OBJ_DIR = obj
 BIN_DIR = bin
 
-TARGET = $(BIN_DIR)/output.out
+TARGET = $(BIN_DIR)/PA.out
 
 SRCS = $(wildcard $(SRC_DIR)/*.cpp)
 

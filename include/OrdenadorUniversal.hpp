@@ -11,11 +11,11 @@ class OrdenadorUniversal
 
     private:
         unsigned cmp, move, calls;
-        double a, b, c;
+        long double a, b, c;
         Estatisticas *custos;
         
     public:
-        OrdenadorUniversal(int tam);
+        OrdenadorUniversal(long double a, long double b, long double c);
         ~OrdenadorUniversal();  
     
         // limiarCusto

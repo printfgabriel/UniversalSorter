@@ -4,9 +4,10 @@
 
 using namespace std;
 
-OrdenadorUniversal::OrdenadorUniversal(int tam){
+OrdenadorUniversal::OrdenadorUniversal(long double a, long double b, long double c) : a(a), b(b), c(c){
     resetStats();
     custos = new Estatisticas[20];
+    cout << "--- a = " << a << endl;
 }
 
 OrdenadorUniversal::~OrdenadorUniversal(){}
@@ -21,6 +22,7 @@ void OrdenadorUniversal::ordenador(int *V, int tam, int minTamParticao, int limi
         quickSort3(V, 0, tam-1) ;
     else 
         insertionSort(V, 0, tam-1);
+
 }
 
 int OrdenadorUniversal::determinaLimiarQuebras(int *V, int tam, int limiarCusto){
@@ -124,7 +126,7 @@ int OrdenadorUniversal::determinaLimiarParticao(int *V, int tam, int limiarCusto
     int minMPS_valor = 2, 
         numMPS, 
         maxMPS_valor = tam,
-        passoMPS = (maxMPS_valor - minMPS_valor) / 5,
+        passoMPS = (maxMPS_valor - minMPS_valor + 4) / 5,
         limParticao,
         index = 0;
     long double diffCusto = 0;
