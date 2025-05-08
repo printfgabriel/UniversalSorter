@@ -25,7 +25,7 @@ class OrdenadorUniversal
         // limiarParticao
         void ordenador(int *V, int tam, int minTamParticao, int limiarQuebras);
         int determinaLimiarParticao(int *V, int tam, int limiarCusto);
-        void calculaNovaFaixa(int limParticao, int &minMPS, int &maxMPS, int &passoMPS, int numMPS);
+        void calculaNovaFaixa(int limParticao, int &minMPS, int &maxMPS, int &passoMPS, int numMPS, long double &mpsdiff);
         void registraEstatisticas(int numMPS, unsigned t);
         void imprimeEstatisticas(int numMPS);
 
@@ -40,6 +40,7 @@ class OrdenadorUniversal
         int median(int a, int b, int c);
         void partition3(int * A, int l, int r, int *i, int *j);
         void quickSort3(int * A, int l, int r);
+        void quickSort3Ins(int * A, int l, int r, int partition);
 
         // InsertionSort methods
         void insertionSort(int V[], int l, int r);
