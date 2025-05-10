@@ -1,6 +1,8 @@
 #ifndef ORDENADOR_HPP
 #define ORDENADOR_HPP
 
+typedef int tipo;
+
 class OrdenadorUniversal
 {
     struct Estatisticas{
@@ -19,31 +21,32 @@ class OrdenadorUniversal
         ~OrdenadorUniversal();  
     
         // limiarCusto
-        int determinaLimiarQuebras(int *V, int tam, int limiarCusto);
+        int determinaLimiarQuebras(tipo *V, int tam, int limiarCusto);
         void calculaNovaFaixaQuebra(int limQuebras, int &minQuebras, int &maxQuebras, int &passoQuebras, int numQuebras);
 
         // limiarParticao
-        void ordenador(int *V, int tam, int minTamParticao, int limiarQuebras);
-        int determinaLimiarParticao(int *V, int tam, int limiarCusto);
+        void ordenador(tipo *V, int tam, int minTamParticao, int limiarQuebras);
+        int determinaLimiarParticao(tipo *V, int tam, int limiarCusto);
         void calculaNovaFaixa(int limParticao, int &minMPS, int &maxMPS, int &passoMPS, int numMPS, long double &mpsdiff);
         void registraEstatisticas(int numMPS, unsigned t);
         void imprimeEstatisticas(int numMPS);
 
         // Auxiliary methods
-        int numeroQuebras(int *V, int tam);
+        int numeroQuebras(tipo *V, int tam);
+        void addQuebras(tipo *V, int quantidade);
         int menorCusto(int tam);
         void resetStats();
         void resetCustos();
-        void swap(int &a, int &b);
+        void swap(tipo &a, tipo &b);
 
         // Quicksort methods
-        int median(int a, int b, int c);
-        void partition3(int * A, int l, int r, int *i, int *j);
-        void quickSort3(int * A, int l, int r);
-        void quickSort3Ins(int * A, int l, int r, int partition);
+        int median(tipo a, tipo b, tipo c);
+        void partition3(tipo * A, int l, int r, int *i, int *j);
+        void quickSort3(tipo * A, int l, int r);
+        void quickSort3Ins(tipo * A, int l, int r, int partition);
 
         // InsertionSort methods
-        void insertionSort(int V[], int l, int r);
+        void insertionSort(tipo V[], int l, int r, bool addStats);
 
     };
 

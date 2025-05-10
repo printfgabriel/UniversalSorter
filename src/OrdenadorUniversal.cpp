@@ -12,35 +12,42 @@ OrdenadorUniversal::OrdenadorUniversal(long double a, long double b, long double
 OrdenadorUniversal::~OrdenadorUniversal(){}
 
 
-void OrdenadorUniversal::ordenador(int *V, int tam, int minTamParticao, int limiarQuebras) {
+void OrdenadorUniversal::ordenador(tipo *V, int tam, int minTamParticao, int limiarQuebras) {
     int numQuebras = numeroQuebras(V, tam);
+    cout << "lq = " << limiarQuebras << "  |  numquebras = " << numQuebras << endl;
 
-
-    if(limiarQuebras == NULL)
+    if(limiarQuebras == -1) // caso especial
         quickSort3Ins(V, 0, tam-1, minTamParticao);
 
     else if (numQuebras < limiarQuebras) 
-        insertionSort(V, 0, tam-1);   
+        insertionSort(V, 0, tam-1, true);   
     else if (tam > minTamParticao) 
         quickSort3(V, 0, tam-1) ;
     else 
-        insertionSort(V, 0, tam-1);
+        insertionSort(V, 0, tam-1, true);
 
 }
 
-int OrdenadorUniversal::determinaLimiarQuebras(int *V, int tam, int limiarCusto){
+int OrdenadorUniversal::determinaLimiarQuebras(tipo *V, int tam, int limiarCusto){
     // Para não perder o vetor V original
     int *backup = new int[tam];
     for (int i = 0; i < tam; i++) {
         backup[i] = V[i];
     }
-    
+    insertionSort(backup, 0, tam, false);
+
+    cout << "*** BORA VER SE BACKUP TA ORDENDO DE FATO ***" << endl;
+    for (int i = 0; i < tam; i++) {
+        cout << backup[i] << "  ";
+    }
+
+
     int limiarQuebras,
-        minQuebras = 0, 
-        maxQuebras = tam,
+        minQuebras = 1, 
+        maxQuebras = tam-1, // só pode ter tam-1 quebra, matematicamente
         numQuebras,
         index = 0,
-        passoQuebra = (maxQuebras-minQuebras)/5;
+        passoQuebra = (maxQuebras - minQuebras + 4)/5;
     
     long double diffCusto = 0;
     
@@ -49,10 +56,14 @@ int OrdenadorUniversal::determinaLimiarQuebras(int *V, int tam, int limiarCusto)
         cout << "iter " << index << endl;
 
         for (int lq = minQuebras; lq <= maxQuebras; lq += passoQuebra) {
-            // Para restaurar o V original
+            
+            // voltar ao ordenado e adicionar lq quebras
             for (int i = 0; i < tam; i++) {
                 V[i] = backup[i];
             }
+            
+            addQuebras(V, lq);
+            cout << "adicionando " << lq << "quebras" << endl;
 
             // QuickSort somente
             ordenador(V, tam, 0, lq); // 'tam' como minTamParticao para forçar a escolha baseada no limiar de quebras
@@ -62,10 +73,12 @@ int OrdenadorUniversal::determinaLimiarQuebras(int *V, int tam, int limiarCusto)
             resetStats();
 
 
-            // Para restaurar o V original
+            // voltar ao ordenado e adicionar lq quebras
             for (int i = 0; i < tam; i++) {
                 V[i] = backup[i];
             }
+            addQuebras(V, lq);
+            cout << "adicionando " << lq << "quebras" << endl;
 
             // InsertionSort somente - sobreescrevendo as stats do quick --> a que importa é a do insertion
             ordenador(V, tam, tam+1, lq); // 'tam' como minTamParticao para forçar a escolha baseada no limiar de quebras
@@ -120,7 +133,7 @@ void OrdenadorUniversal::calculaNovaFaixaQuebra(int limQuebras, int &minQuebras,
 
 
 
-int OrdenadorUniversal::determinaLimiarParticao(int *V, int tam, int limiarCusto) {
+int OrdenadorUniversal::determinaLimiarParticao(tipo *V, int tam, int limiarCusto) {
     // Para não perder o vetor V original
     int *backup = new int[tam];
     for (int i = 0; i < tam; i++) {
@@ -146,7 +159,7 @@ int OrdenadorUniversal::determinaLimiarParticao(int *V, int tam, int limiarCusto
             }
 
             // Testar com o t atual
-            ordenador(V, tam, t, NULL);
+            ordenador(V, tam, t, -1);
             registraEstatisticas(numMPS, t);
             cout << "mps " << t << " ";
             imprimeEstatisticas(numMPS);
@@ -166,6 +179,8 @@ int OrdenadorUniversal::determinaLimiarParticao(int *V, int tam, int limiarCusto
         // cout << endl << diffCusto << " > " << limiarCusto << " && " << numMPS << " >= 5" << endl;
     } while ((diffCusto > limiarCusto) && (numMPS >= 5));
     // return limParticao;
+
+    delete backup;
     return custos[limParticao].mps;
 }
 
@@ -221,17 +236,27 @@ void OrdenadorUniversal::imprimeEstatisticas(int index){
          << "calls " << custos[index].calls << endl;
 }
 
-int OrdenadorUniversal::numeroQuebras(int *V, int tam) {
+int OrdenadorUniversal::numeroQuebras(tipo *V, int tam) {
     int quebras = 0;
 
     for (int i = 1; i < tam; i++) {
-        cmp++; // será?
+        // cmp++; // será?
         if (V[i] < V[i-1]) 
             quebras++;
     }
     return quebras;
 }
 
+void OrdenadorUniversal::addQuebras(tipo *V, int quantidade){
+    quantidade++;
+
+    for (int i = 0; i < quantidade / 2; i++) {
+        int aux = V[i];
+        V[i] = V[quantidade - 1 - i];
+        V[quantidade - 1 - i] = aux;
+
+    }
+}
 
 
 void OrdenadorUniversal::resetStats(){
@@ -246,8 +271,8 @@ void OrdenadorUniversal::resetCustos(){
 }
 
 
-void OrdenadorUniversal::swap(int &a, int &b){
-    int temp = a;
+void OrdenadorUniversal::swap(tipo &a, int &b){
+    tipo temp = a;
     a=b;
     b=temp;
     move+=3;
@@ -255,7 +280,7 @@ void OrdenadorUniversal::swap(int &a, int &b){
 }
 
 
-int OrdenadorUniversal::median(int a, int b, int c){
+int OrdenadorUniversal::median(tipo a, tipo b, tipo c){
     if(a >= b)  
         if (b>=c)
             return b;
@@ -270,7 +295,7 @@ int OrdenadorUniversal::median(int a, int b, int c){
 }
 
 // quicksort partition using median of 3
-void OrdenadorUniversal::partition3(int * A, int l, int r, int *i, int *j){
+void OrdenadorUniversal::partition3(tipo * A, int l, int r, int *i, int *j){
     // using the median(start, middle, end) as the pivot, we avoid the worst scenarios.
     // maybe I can swap the pivot and the last element and just do the partition normally. --> NO, it is not what the want!!!!
     
@@ -281,14 +306,14 @@ void OrdenadorUniversal::partition3(int * A, int l, int r, int *i, int *j){
     int meio = l + (r - l) / 2;
   
     
-    int pivot_val = median(A[l], A[meio], A[r]);
+    tipo pivot_val = median(A[l], A[meio], A[r]);
   
     int pivot_index;
     if (pivot_val == A[l]) pivot_index = l;
     else if (pivot_val == A[meio]) pivot_index = meio;
     else pivot_index = r;
   
-    int pivot = A[pivot_index];
+    tipo pivot = A[pivot_index];
   
     do {
         while (pivot > A[*i]) {
@@ -311,7 +336,7 @@ void OrdenadorUniversal::partition3(int * A, int l, int r, int *i, int *j){
 }
 
 // quicksort with insertion for small partitions and median of 3
-void OrdenadorUniversal::quickSort3(int * A, int l, int r) { // ARRUMAR - acho q é sem insertio, visto q o insertion é em outra func
+void OrdenadorUniversal::quickSort3(tipo * A, int l, int r) { // ARRUMAR - acho q é sem insertio, visto q o insertion é em outra func
     if(l >= r)
     return;
 
@@ -327,7 +352,7 @@ void OrdenadorUniversal::quickSort3(int * A, int l, int r) { // ARRUMAR - acho q
 }
 
 // quicksort with insertion for small partitions and median of 3
-void OrdenadorUniversal::quickSort3Ins(int * A, int l, int r, int partition) { 
+void OrdenadorUniversal::quickSort3Ins(tipo * A, int l, int r, int partition) { 
     calls+=2; // para partição e pro quickSort3Ins
     int i, j;
     partition3(A, l, r, &i, &j);
@@ -335,33 +360,36 @@ void OrdenadorUniversal::quickSort3Ins(int * A, int l, int r, int partition) {
     
     if(j > l)
       if(j - l <= partition)
-        insertionSort(A, l, j);  
+        insertionSort(A, l, j, true);  
       else
         quickSort3Ins(A, l, j, partition);
   
     if(r > i)
       if(r - i <= 50)
-        insertionSort(A, i, r);  
+        insertionSort(A, i, r, true);  
       else
         quickSort3Ins(A, i, r, partition);
   }
   
 
-void OrdenadorUniversal::insertionSort(int V[], int l, int r){
+void OrdenadorUniversal::insertionSort(tipo V[], int l, int r, bool addStats){
     // with an element i, we consider we have a i-1 ordered array. So we compare the element i
     // with the previous ones and swap it until it is not smaller than an element N. At this point we stop
-
-    calls++;
-    int i, j, key;
+    if(addStats)
+        calls++;
+    int i, j;
+    tipo key;
 
     for (i = l + 1; i <= r; i++){
         key = V[i];
-        move++;
+        if(addStats)
+            move++;
         j = i - 1;
         int did_break = 0;
 
         while (j >= l){
-            cmp++;
+            if(addStats)
+                cmp++;
             if (key >= V[j])
             {
                 did_break = 1;
@@ -369,16 +397,20 @@ void OrdenadorUniversal::insertionSort(int V[], int l, int r){
             }
 
             V[j + 1] = V[j];
-            move++;
+            if(addStats)
+                move++;
 
             j--;
         }
 
         if (!did_break)
-            cmp++;
+            if(addStats)
+                cmp++;
 
         V[j + 1] = key;
-        move++;
+        
+        if(addStats)
+            move++;
     }
 
     return;

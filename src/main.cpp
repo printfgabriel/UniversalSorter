@@ -8,7 +8,7 @@ int main() {
 
     cin >> limCusto >> a >> b >> c >> tam;
 
-    int *V = new int[tam];
+    tipo *V = new tipo[tam];
 
     for (int i = 0; i < tam; i++)
         cin >> V[i];    
@@ -16,7 +16,9 @@ int main() {
     
     OrdenadorUniversal smartSorter(a, b, c);
     
-    unsigned limPart = smartSorter.determinaLimiarParticao(V, tam, limCusto);
+    // unsigned limPart = smartSorter.determinaLimiarParticao(V, tam, limCusto);
+    unsigned limPart = smartSorter.determinaLimiarQuebras(V, tam, limCusto);
+
     
 
     return 0;
