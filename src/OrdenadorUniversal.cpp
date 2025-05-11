@@ -14,7 +14,7 @@ OrdenadorUniversal::~OrdenadorUniversal(){}
 
 void OrdenadorUniversal::ordenador(tipo *V, int tam, int minTamParticao, int limiarQuebras) {
     int numQuebras = numeroQuebras(V, tam);
-    cout << "lq = " << limiarQuebras << "  |  numquebras = " << numQuebras << endl;
+    // cout << "lq = " << limiarQuebras << "  |  numquebras = " << numQuebras << endl;
 
     if(limiarQuebras == -1) // caso especial
         quickSort3Ins(V, 0, tam-1, minTamParticao);
@@ -36,11 +36,6 @@ int OrdenadorUniversal::determinaLimiarQuebras(tipo *V, int tam, int limiarCusto
     }
     insertionSort(backup, 0, tam, false);
 
-    cout << "*** BORA VER SE BACKUP TA ORDENDO DE FATO ***" << endl;
-    for (int i = 0; i < tam; i++) {
-        cout << backup[i] << "  ";
-    }
-
 
     int limiarQuebras,
         minQuebras = 1, 
@@ -49,7 +44,7 @@ int OrdenadorUniversal::determinaLimiarQuebras(tipo *V, int tam, int limiarCusto
         index = 0,
         passoQuebra = (maxQuebras - minQuebras + 4)/5;
     
-    long double diffCusto = 0;
+    long double diffCusto = 0, lqdiff;
     
     do {
         numQuebras = 0;
@@ -63,7 +58,6 @@ int OrdenadorUniversal::determinaLimiarQuebras(tipo *V, int tam, int limiarCusto
             }
             
             addQuebras(V, lq);
-            cout << "adicionando " << lq << "quebras" << endl;
 
             // QuickSort somente
             ordenador(V, tam, 0, lq); // 'tam' como minTamParticao para forçar a escolha baseada no limiar de quebras
@@ -78,7 +72,6 @@ int OrdenadorUniversal::determinaLimiarQuebras(tipo *V, int tam, int limiarCusto
                 V[i] = backup[i];
             }
             addQuebras(V, lq);
-            cout << "adicionando " << lq << "quebras" << endl;
 
             // InsertionSort somente - sobreescrevendo as stats do quick --> a que importa é a do insertion
             ordenador(V, tam, tam+1, lq); // 'tam' como minTamParticao para forçar a escolha baseada no limiar de quebras
@@ -92,7 +85,7 @@ int OrdenadorUniversal::determinaLimiarQuebras(tipo *V, int tam, int limiarCusto
         }
         // Indice com menor custo (do Insertion puro)
         limiarQuebras = menorCusto(numQuebras); // Encontra o limiar de quebras com menor custo registrado
-        calculaNovaFaixaQuebra(limiarQuebras, minQuebras, maxQuebras, passoQuebra, numQuebras);
+        calculaNovaFaixaQuebra(limiarQuebras, minQuebras, maxQuebras, passoQuebra, numQuebras, lqdiff);
         diffCusto = custos[0].valorCusto - custos[numQuebras-1].valorCusto;
         diffCusto = diffCusto < 0? -diffCusto : diffCusto;
 
@@ -107,7 +100,7 @@ int OrdenadorUniversal::determinaLimiarQuebras(tipo *V, int tam, int limiarCusto
 }
 
 
-void OrdenadorUniversal::calculaNovaFaixaQuebra(int limQuebras, int &minQuebras, int &maxQuebras, int &passoQuebras, int numQuebras){
+void OrdenadorUniversal::calculaNovaFaixaQuebra(int limQuebras, int &minQuebras, int &maxQuebras, int &passoQuebras, int numQuebras, long double &lqdiff){
     int newMin, newMax;
     
     if (limQuebras == 0) {
@@ -123,6 +116,9 @@ void OrdenadorUniversal::calculaNovaFaixaQuebra(int limQuebras, int &minQuebras,
     
     minQuebras = custos[newMin].mps;
     maxQuebras = custos[newMax].mps;
+
+    lqdiff = custos[newMax].valorCusto - custos[newMin].valorCusto;
+    lqdiff = lqdiff >= 0 ? lqdiff : -lqdiff;
 
     passoQuebras = (int)(maxQuebras - minQuebras) / 5;
     

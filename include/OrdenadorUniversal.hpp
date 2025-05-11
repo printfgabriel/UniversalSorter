@@ -22,7 +22,7 @@ class OrdenadorUniversal
     
         // limiarCusto
         int determinaLimiarQuebras(tipo *V, int tam, int limiarCusto);
-        void calculaNovaFaixaQuebra(int limQuebras, int &minQuebras, int &maxQuebras, int &passoQuebras, int numQuebras);
+        void calculaNovaFaixaQuebra(int limQuebras, int &minQuebras, int &maxQuebras, int &passoQuebras, int numQuebras, long double &lqdiff);
 
         // limiarParticao
         void ordenador(tipo *V, int tam, int minTamParticao, int limiarQuebras);
