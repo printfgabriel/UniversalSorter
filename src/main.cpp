@@ -14,12 +14,14 @@ int main() {
         cin >> V[i];    
     
     
-    OrdenadorUniversal smartSorter(a, b, c);
+    OrdenadorUniversal *smartSorter = new OrdenadorUniversal(a, b, c);
     
-    // unsigned limPart = smartSorter.determinaLimiarParticao(V, tam, limCusto);
-    unsigned limPart = smartSorter.determinaLimiarQuebras(V, tam, limCusto);
+    unsigned limPart = smartSorter->determinaLimiarParticao(V, tam, limCusto);
+
+    unsigned limQuebra = smartSorter->determinaLimiarQuebras(V, tam, limCusto);
 
     
+    delete[] V;
 
     return 0;
 }

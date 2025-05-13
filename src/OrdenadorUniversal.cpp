@@ -9,7 +9,9 @@ OrdenadorUniversal::OrdenadorUniversal(long double a, long double b, long double
     custos = new Estatisticas[20];
 }
 
-OrdenadorUniversal::~OrdenadorUniversal(){}
+OrdenadorUniversal::~OrdenadorUniversal(){
+    delete[] custos;
+}
 
 
 void OrdenadorUniversal::ordenador(tipo *V, int tam, int minTamParticao, int limiarQuebras) {
@@ -19,12 +21,15 @@ void OrdenadorUniversal::ordenador(tipo *V, int tam, int minTamParticao, int lim
     if(limiarQuebras == -1) // caso especial
         quickSort3Ins(V, 0, tam-1, minTamParticao);
 
-    else if (numQuebras < limiarQuebras) 
+    else if (numQuebras < limiarQuebras){
         insertionSort(V, 0, tam-1, true);   
-    else if (tam > minTamParticao) 
+    }
+    else if (tam > minTamParticao) {
         quickSort3(V, 0, tam-1) ;
-    else 
+    }
+    else {
         insertionSort(V, 0, tam-1, true);
+    }
 
 }
 
@@ -42,14 +47,13 @@ int OrdenadorUniversal::determinaLimiarQuebras(tipo *V, int tam, int limiarCusto
         maxQuebras = tam-1, // só pode ter tam-1 quebra, matematicamente
         numQuebras,
         index = 0,
-        passoQuebra = (maxQuebras - minQuebras + 4)/5;
+        passoQuebra = (int)(maxQuebras - minQuebras)/5;
     
-    long double diffCusto = 0, lqdiff;
+    long double lqdiff;
     
     do {
         numQuebras = 0;
         cout << "iter " << index << endl;
-
         for (int lq = minQuebras; lq <= maxQuebras; lq += passoQuebra) {
             
             // voltar ao ordenado e adicionar lq quebras
@@ -60,7 +64,7 @@ int OrdenadorUniversal::determinaLimiarQuebras(tipo *V, int tam, int limiarCusto
             addQuebras(V, lq);
 
             // QuickSort somente
-            ordenador(V, tam, 0, lq); // 'tam' como minTamParticao para forçar a escolha baseada no limiar de quebras
+            ordenador(V, tam, 0, 0); // 'tam' como minTamParticao para forçar a escolha baseada no limiar de quebras
             registraEstatisticas(numQuebras, lq); // Registra as estatísticas para este limiar de quebras
             cout << "qs lq " << lq << " ";
             imprimeEstatisticas(numQuebras);
@@ -74,7 +78,7 @@ int OrdenadorUniversal::determinaLimiarQuebras(tipo *V, int tam, int limiarCusto
             addQuebras(V, lq);
 
             // InsertionSort somente - sobreescrevendo as stats do quick --> a que importa é a do insertion
-            ordenador(V, tam, tam+1, lq); // 'tam' como minTamParticao para forçar a escolha baseada no limiar de quebras
+            ordenador(V, tam, 0, tam); // 'tam' como minTamParticao para forçar a escolha baseada no limiar de quebras
             registraEstatisticas(numQuebras, lq); // Registra as estatísticas para este limiar de quebras
             cout << "in lq " << lq << " ";
             imprimeEstatisticas(numQuebras);
@@ -86,16 +90,16 @@ int OrdenadorUniversal::determinaLimiarQuebras(tipo *V, int tam, int limiarCusto
         // Indice com menor custo (do Insertion puro)
         limiarQuebras = menorCusto(numQuebras); // Encontra o limiar de quebras com menor custo registrado
         calculaNovaFaixaQuebra(limiarQuebras, minQuebras, maxQuebras, passoQuebra, numQuebras, lqdiff);
-        diffCusto = custos[0].valorCusto - custos[numQuebras-1].valorCusto;
-        diffCusto = diffCusto < 0? -diffCusto : diffCusto;
+        // diffCusto = custos[0].valorCusto - custos[numQuebras-1].valorCusto;
+        // diffCusto = diffCusto < 0? -diffCusto : diffCusto;
 
         index++;
         resetCustos();
         cout << endl;
-    } while ((diffCusto > limiarCusto) && (numQuebras >= 5));
+    } while ((lqdiff > limiarCusto) && (numQuebras >= 5));
 
-
-    cout << "numq " << index - 1 << " limQuebras " << limiarQuebras << " lqdiff " << diffCusto << endl; // ARRUMAR - o que é qdiff
+    delete[] backup;
+    cout << "numq " << index - 1 << " limQuebras " << limiarQuebras << " lqdiff " << lqdiff << endl; // ARRUMAR - o que é qdiff
     return custos[limiarQuebras].mps; 
 }
 
@@ -139,10 +143,10 @@ int OrdenadorUniversal::determinaLimiarParticao(tipo *V, int tam, int limiarCust
     int minMPS_valor = 2, 
         numMPS, 
         maxMPS_valor = tam,
-        passoMPS = (maxMPS_valor - minMPS_valor + 4) / 5,
+        passoMPS = (int) (maxMPS_valor - minMPS_valor)/ 5,
         limParticao,
         index = 0;
-    long double diffCusto = 0, mpsdiff;
+    long double mpsdiff;
         
     do {
         numMPS = 0;
@@ -165,18 +169,18 @@ int OrdenadorUniversal::determinaLimiarParticao(tipo *V, int tam, int limiarCust
         // Acha índice de menor custo e calcula novos valores
         limParticao = menorCusto(numMPS);
         calculaNovaFaixa(limParticao, minMPS_valor, maxMPS_valor, passoMPS, numMPS, mpsdiff);
-        diffCusto = custos[0].valorCusto - custos[numMPS-1].valorCusto;
-        diffCusto = diffCusto < 0 ? -diffCusto : diffCusto;
+        // diffCusto = custos[0].valorCusto - custos[numMPS-1].valorCusto;
+        // diffCusto = diffCusto < 0 ? -diffCusto : diffCusto;
         index++;
         resetCustos();
         
         cout << endl << "nummps " << numMPS << " limParticao " << custos[limParticao].mps << " mpsdiff " << mpsdiff << endl; // ARRUMAR - oq é mpsdiff
 
         // cout << endl << diffCusto << " > " << limiarCusto << " && " << numMPS << " >= 5" << endl;
-    } while ((diffCusto > limiarCusto) && (numMPS >= 5));
+    } while ((mpsdiff > limiarCusto) && (numMPS >= 5));
     // return limParticao;
 
-    delete backup;
+    delete[] backup;
     return custos[limParticao].mps;
 }
 
