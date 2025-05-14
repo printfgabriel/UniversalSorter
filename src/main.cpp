@@ -3,8 +3,12 @@
 using namespace std;
 
 int main() {
-    int limCusto, tam;
-    long double a, b, c;
+    int tam;
+    long double a, b, c, limCusto;
+    unsigned seed;
+
+    cin >> seed;
+
 
     cin >> limCusto >> a >> b >> c >> tam;
 
@@ -14,7 +18,7 @@ int main() {
         cin >> V[i];    
     
     
-    OrdenadorUniversal *smartSorter = new OrdenadorUniversal(a, b, c);
+    OrdenadorUniversal *smartSorter = new OrdenadorUniversal(a, b, c, seed);
     
     unsigned limPart = smartSorter->determinaLimiarParticao(V, tam, limCusto);
 

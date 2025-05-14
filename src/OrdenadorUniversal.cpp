@@ -2,9 +2,10 @@
 
 #include <iostream>
 
+
 using namespace std;
 
-OrdenadorUniversal::OrdenadorUniversal(long double a, long double b, long double c) : a(a), b(b), c(c){
+OrdenadorUniversal::OrdenadorUniversal(long double a, long double b, long double c, unsigned seed) : a(a), b(b), c(c), seed(seed){
     resetStats();
     custos = new Estatisticas[20];
 }
@@ -30,38 +31,39 @@ void OrdenadorUniversal::ordenador(tipo *V, int tam, int minTamParticao, int lim
     else {
         insertionSort(V, 0, tam-1, true);
     }
-
+    
 }
 
-int OrdenadorUniversal::determinaLimiarQuebras(tipo *V, int tam, int limiarCusto){
+int OrdenadorUniversal::determinaLimiarQuebras(tipo *V, int tam, long double limiarCusto){
     // Para não perder o vetor V original
     int *backup = new int[tam];
     for (int i = 0; i < tam; i++) {
         backup[i] = V[i];
     }
+
     insertionSort(backup, 0, tam, false);
-
-
+    
+    
     int limiarQuebras,
-        minQuebras = 1, 
-        maxQuebras = tam-1, // só pode ter tam-1 quebra, matematicamente
-        numQuebras,
-        index = 0,
-        passoQuebra = (int)(maxQuebras - minQuebras)/5;
+    minQuebras = 1, 
+    maxQuebras = tam-1, // só pode ter tam-1 quebra, matematicamente
+    numQuebras,
+    index = 0,
+    passoQuebra = (int)(maxQuebras - minQuebras)/5;
     
     long double lqdiff;
     
+    srand48(seed);
     do {
         numQuebras = 0;
-        cout << "iter " << index << endl;
+        cout << endl <<  "iter " << index << endl;
         for (int lq = minQuebras; lq <= maxQuebras; lq += passoQuebra) {
             
             // voltar ao ordenado e adicionar lq quebras
             for (int i = 0; i < tam; i++) {
                 V[i] = backup[i];
             }
-            
-            addQuebras(V, lq);
+            addQuebras(V, tam,lq);
 
             // QuickSort somente
             ordenador(V, tam, 0, 0); // 'tam' como minTamParticao para forçar a escolha baseada no limiar de quebras
@@ -70,12 +72,13 @@ int OrdenadorUniversal::determinaLimiarQuebras(tipo *V, int tam, int limiarCusto
             imprimeEstatisticas(numQuebras);
             resetStats();
 
+            numQuebras++;
 
             // voltar ao ordenado e adicionar lq quebras
             for (int i = 0; i < tam; i++) {
                 V[i] = backup[i];
             }
-            addQuebras(V, lq);
+            addQuebras(V, tam, lq);
 
             // InsertionSort somente - sobreescrevendo as stats do quick --> a que importa é a do insertion
             ordenador(V, tam, 0, tam); // 'tam' como minTamParticao para forçar a escolha baseada no limiar de quebras
@@ -88,18 +91,17 @@ int OrdenadorUniversal::determinaLimiarQuebras(tipo *V, int tam, int limiarCusto
             numQuebras++;
         }
         // Indice com menor custo (do Insertion puro)
-        limiarQuebras = menorCusto(numQuebras); // Encontra o limiar de quebras com menor custo registrado
+        limiarQuebras = menorCustoQuebras(numQuebras); // Encontra o limiar de quebras com menor custo registrado
         calculaNovaFaixaQuebra(limiarQuebras, minQuebras, maxQuebras, passoQuebra, numQuebras, lqdiff);
         // diffCusto = custos[0].valorCusto - custos[numQuebras-1].valorCusto;
         // diffCusto = diffCusto < 0? -diffCusto : diffCusto;
 
         index++;
         resetCustos();
-        cout << endl;
-    } while ((lqdiff > limiarCusto) && (numQuebras >= 5));
+        cout << endl << "numq " << index - 1 << " limQuebras " << custos[limiarQuebras].mps << " lqdiff " << lqdiff << endl; // ARRUMAR - o que é qdiff
+    } while ((lqdiff > limiarCusto) && (numQuebras >= 10));
 
     delete[] backup;
-    cout << "numq " << index - 1 << " limQuebras " << limiarQuebras << " lqdiff " << lqdiff << endl; // ARRUMAR - o que é qdiff
     return custos[limiarQuebras].mps; 
 }
 
@@ -118,10 +120,10 @@ void OrdenadorUniversal::calculaNovaFaixaQuebra(int limQuebras, int &minQuebras,
         newMax = limQuebras + 1;
     }
     
-    minQuebras = custos[newMin].mps;
-    maxQuebras = custos[newMax].mps;
+    minQuebras = custos[2*newMin].mps;
+    maxQuebras = custos[2*newMax].mps;
 
-    lqdiff = custos[newMax].valorCusto - custos[newMin].valorCusto;
+    lqdiff = custos[2*newMax +1].valorCusto - custos[2*newMin +1].valorCusto;
     lqdiff = lqdiff >= 0 ? lqdiff : -lqdiff;
 
     passoQuebras = (int)(maxQuebras - minQuebras) / 5;
@@ -133,7 +135,7 @@ void OrdenadorUniversal::calculaNovaFaixaQuebra(int limQuebras, int &minQuebras,
 
 
 
-int OrdenadorUniversal::determinaLimiarParticao(tipo *V, int tam, int limiarCusto) {
+int OrdenadorUniversal::determinaLimiarParticao(tipo *V, int tam, long double limiarCusto) {
     // Para não perder o vetor V original
     int *backup = new int[tam];
     for (int i = 0; i < tam; i++) {
@@ -221,6 +223,25 @@ int OrdenadorUniversal::menorCusto(int num) {
     return menorIdx;
 }
 
+int OrdenadorUniversal::menorCustoQuebras(int num) {
+    int menorIdx = 0;
+    long double diffAtual = custos[1].valorCusto - custos[0].valorCusto;
+    diffAtual = diffAtual < 0 ? -diffAtual : diffAtual; 
+
+
+    for (int i = 2; i < num; i+=2) {
+        long double diffAux = custos[i+1].valorCusto - custos[i].valorCusto;
+        diffAux = diffAux < 0 ? -diffAux : diffAux;
+
+        if(diffAux < diffAtual){
+            diffAtual = diffAux;
+            menorIdx = i;
+        }
+
+    }
+    return menorIdx;
+}
+
 void OrdenadorUniversal::registraEstatisticas(int index, unsigned t){
     custos[index].mps = t;
     custos[index].calls = calls;
@@ -247,17 +268,35 @@ int OrdenadorUniversal::numeroQuebras(tipo *V, int tam) {
     return quebras;
 }
 
-void OrdenadorUniversal::addQuebras(tipo *V, int quantidade){
-    quantidade++;
+// void OrdenadorUniversal::addQuebras(tipo *V, int quantidade){
+//     quantidade++;
 
-    for (int i = 0; i < quantidade / 2; i++) {
-        int aux = V[i];
-        V[i] = V[quantidade - 1 - i];
-        V[quantidade - 1 - i] = aux;
+//     for (int i = 0; i < quantidade / 2; i++) {
+//         int aux = V[i];
+//         V[i] = V[quantidade - 1 - i];
+//         V[quantidade - 1 - i] = aux;
 
+//     }
+// }
+
+void OrdenadorUniversal::addQuebras(tipo *V, int tamanho, int quantidade){
+    int p1 = 0, p2 = 0, temp;
+
+    for (int t = 0; t < quantidade; t++) {
+
+        while (p1 == p2) {
+            p1 = (int)(drand48() * tamanho);
+            p2 = (int)(drand48() * tamanho);
+        }
+        
+        /* Realiza a troca para introduzir uma quebra */
+        temp = V[p1];
+        V[p1] = V[p2];
+        V[p2] = temp;
+        p1 = p2 = 0;
     }
-}
 
+}
 
 void OrdenadorUniversal::resetStats(){
     cmp = 0;
