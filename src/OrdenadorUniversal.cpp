@@ -23,13 +23,13 @@ void OrdenadorUniversal::ordenador(tipo *V, int tam, int minTamParticao, int lim
         quickSort3Ins(V, 0, tam-1, minTamParticao);
 
     else if (numQuebras < limiarQuebras){
-        insertionSort(V, 0, tam-1, true);   
+        insertionSort(V, 0, tam-1);   
     }
     else if (tam > minTamParticao) {
         quickSort3(V, 0, tam-1) ;
     }
     else {
-        insertionSort(V, 0, tam-1, true);
+        insertionSort(V, 0, tam-1);
     }
     
 }
@@ -41,7 +41,8 @@ int OrdenadorUniversal::determinaLimiarQuebras(tipo *V, int tam, long double lim
         backup[i] = V[i];
     }
 
-    insertionSort(backup, 0, tam, false);
+    insertionSort(backup, 0, tam);
+    resetStats();
     
     
     int limiarQuebras,
@@ -399,35 +400,32 @@ void OrdenadorUniversal::quickSort3Ins(tipo * A, int l, int r, int partition) {
     
     if(j > l)
       if(j - l <= partition)
-        insertionSort(A, l, j, true);  
+        insertionSort(A, l, j);  
       else
         quickSort3Ins(A, l, j, partition);
   
     if(r > i)
       if(r - i <= 50)
-        insertionSort(A, i, r, true);  
+        insertionSort(A, i, r);  
       else
         quickSort3Ins(A, i, r, partition);
   }
   
 
-void OrdenadorUniversal::insertionSort(tipo V[], int l, int r, bool addStats){
+void OrdenadorUniversal::insertionSort(tipo V[], int l, int r){
     // with an element i, we consider we have a i-1 ordered array. So we compare the element i
     // with the previous ones and swap it until it is not smaller than an element N. At this point we stop
-    if(addStats)
         calls++;
     int i, j;
     tipo key;
 
     for (i = l + 1; i <= r; i++){
         key = V[i];
-        if(addStats)
             move++;
         j = i - 1;
         int did_break = 0;
 
         while (j >= l){
-            if(addStats)
                 cmp++;
             if (key >= V[j])
             {
@@ -436,20 +434,17 @@ void OrdenadorUniversal::insertionSort(tipo V[], int l, int r, bool addStats){
             }
 
             V[j + 1] = V[j];
-            if(addStats)
                 move++;
 
             j--;
         }
 
         if (!did_break)
-            if(addStats)
                 cmp++;
 
         V[j + 1] = key;
         
-        if(addStats)
-            move++;
+        move++;
     }
 
     return;

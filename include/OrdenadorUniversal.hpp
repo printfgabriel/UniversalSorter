@@ -48,7 +48,7 @@ class OrdenadorUniversal
         void quickSort3Ins(tipo * A, int l, int r, int partition);
 
         // InsertionSort methods
-        void insertionSort(tipo V[], int l, int r, bool addStats);
+        void insertionSort(tipo V[], int l, int r);
 
     };
 
