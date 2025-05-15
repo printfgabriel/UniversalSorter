@@ -153,7 +153,7 @@ int OrdenadorUniversal::determinaLimiarParticao(tipo *V, int tam, long double li
         
     do {
         numMPS = 0;
-        cout << "iter " << index << endl;
+        cout << endl << "iter " << index << endl;
         
         for (int t = minMPS_valor; t <= maxMPS_valor; t += passoMPS) {
             // Para restaurar o V original
@@ -162,7 +162,10 @@ int OrdenadorUniversal::determinaLimiarParticao(tipo *V, int tam, long double li
             }
 
             // Testar com o t atual
-            ordenador(V, tam, t, -1);
+            // ordenador(V, tam, t, -1);
+
+            quickSort3Ins(V, 0, tam-1, t); // r é inclusivo, entao é tam-1 --> TESTADO!
+
             registraEstatisticas(numMPS, t);
             cout << "mps " << t << " ";
             imprimeEstatisticas(numMPS);
@@ -338,7 +341,7 @@ int OrdenadorUniversal::median(tipo a, tipo b, tipo c){
 void OrdenadorUniversal::partition3(tipo * A, int l, int r, int *i, int *j){
     // using the median(start, middle, end) as the pivot, we avoid the worst scenarios.
     // maybe I can swap the pivot and the last element and just do the partition normally. --> NO, it is not what the want!!!!
-    
+
     *i = l;
     *j = r;
   
@@ -396,8 +399,7 @@ void OrdenadorUniversal::quickSort3Ins(tipo * A, int l, int r, int partition) {
     calls+=2; // para partição e pro quickSort3Ins
     int i, j;
     partition3(A, l, r, &i, &j);
-    
-    
+
     if(j > l)
       if(j - l <= partition)
         insertionSort(A, l, j);  
@@ -405,7 +407,7 @@ void OrdenadorUniversal::quickSort3Ins(tipo * A, int l, int r, int partition) {
         quickSort3Ins(A, l, j, partition);
   
     if(r > i)
-      if(r - i <= 50)
+      if(r - i <= partition)
         insertionSort(A, i, r);  
       else
         quickSort3Ins(A, i, r, partition);
@@ -415,27 +417,24 @@ void OrdenadorUniversal::quickSort3Ins(tipo * A, int l, int r, int partition) {
 void OrdenadorUniversal::insertionSort(tipo V[], int l, int r){
     // with an element i, we consider we have a i-1 ordered array. So we compare the element i
     // with the previous ones and swap it until it is not smaller than an element N. At this point we stop
-        calls++;
+    calls++;
     int i, j;
     tipo key;
 
     for (i = l + 1; i <= r; i++){
         key = V[i];
-            move++;
+        move++;
         j = i - 1;
         int did_break = 0;
 
         while (j >= l){
-                cmp++;
-            if (key >= V[j])
-            {
+            cmp++;
+            if (key >= V[j]){
                 did_break = 1;
                 break;
             }
-
-            V[j + 1] = V[j];
-                move++;
-
+            V[j+1] = V[j];
+            move++;
             j--;
         }
 
