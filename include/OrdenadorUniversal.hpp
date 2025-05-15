@@ -18,17 +18,17 @@ class OrdenadorUniversal
         Estatisticas *custos;
         
     public:
-        OrdenadorUniversal(long double a, long double b, long double c, unsigned seed);
+        OrdenadorUniversal(double a, double b, double c, unsigned seed);
         ~OrdenadorUniversal();  
     
         // limiarCusto
-        int determinaLimiarQuebras(tipo *V, int tam, long double limiarCusto);
-        void calculaNovaFaixaQuebra(int limQuebras, int &minQuebras, int &maxQuebras, int &passoQuebras, int numQuebras, long double &lqdiff);
+        int determinaLimiarQuebras(tipo *V, int tam, double limiarCusto, int limParticao);
+        void calculaNovaFaixaQuebra(int limQuebras, int &minQuebras, int &maxQuebras, int &passoQuebras, int numQuebras, float &lqdiff);
 
         // limiarParticao
         void ordenador(tipo *V, int tam, int minTamParticao, int limiarQuebras);
-        int determinaLimiarParticao(tipo *V, int tam, long double limiarCusto);
-        void calculaNovaFaixa(int limParticao, int &minMPS, int &maxMPS, int &passoMPS, int numMPS, long double &mpsdiff);
+        int determinaLimiarParticao(tipo *V, int tam, double limiarCusto);
+        void calculaNovaFaixa(int limParticao, int &minMPS, int &maxMPS, int &passoMPS, int numMPS, float &mpsdiff);
         void registraEstatisticas(int numMPS, unsigned t);
         void imprimeEstatisticas(int numMPS);
 

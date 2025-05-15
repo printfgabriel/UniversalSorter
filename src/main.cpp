@@ -4,7 +4,7 @@ using namespace std;
 
 int main() {
     int tam;
-    long double a, b, c, limCusto;
+    double a, b, c, limCusto;
     unsigned seed;
 
     cin >> seed;
@@ -20,9 +20,9 @@ int main() {
     
     OrdenadorUniversal *smartSorter = new OrdenadorUniversal(a, b, c, seed);
     
-    unsigned limPart = smartSorter->determinaLimiarParticao(V, tam, limCusto);
+    int limPart = smartSorter->determinaLimiarParticao(V, tam, limCusto);
 
-    // unsigned limQuebra = smartSorter->determinaLimiarQuebras(V, tam, limCusto);
+    int limQuebra = smartSorter->determinaLimiarQuebras(V, tam, limCusto, limQuebra);
 
     
     delete[] V;
