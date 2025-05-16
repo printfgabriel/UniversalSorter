@@ -42,7 +42,7 @@ int OrdenadorUniversal::determinaLimiarQuebras(tipo *V, int tam, double limiarCu
         backup[i] = V[i];
     }
 
-    insertionSort(backup, 0, tam);
+    insertionSort(backup, 0, tam-1);
     resetStats();
     
     
@@ -104,7 +104,7 @@ int OrdenadorUniversal::determinaLimiarQuebras(tipo *V, int tam, double limiarCu
         index++;
         resetCustos();
         cout << fixed << setprecision(6);
-        cout << "numq " << numQuebras << " limQuebras " << custos[2*limiarQuebras].mps << " lqdiff " << lqdiff << endl; // ARRUMAR - o que é qdiff
+        cout << "numlq " << numQuebras << " limQuebras " << custos[2*limiarQuebras].mps << " lqdiff " << lqdiff << endl; // ARRUMAR - o que é qdiff
     } while ((numQuebras >= 5));
     
         // } while ((lqdiff > limiarCusto) && (numQuebras >= 10));

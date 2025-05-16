@@ -18,8 +18,12 @@ int main() {
         cin >> V[i];    
     
     
+
+
     OrdenadorUniversal *smartSorter = new OrdenadorUniversal(a, b, c, seed);
     
+    cout << "size " << tam << " seed " << seed << " breaks " << smartSorter->numeroQuebras(V, tam) << endl;
+
     int limPart = smartSorter->determinaLimiarParticao(V, tam, limCusto);
 
     int limQuebra = smartSorter->determinaLimiarQuebras(V, tam, limCusto, limPart);
