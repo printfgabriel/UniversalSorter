@@ -1,23 +1,36 @@
 #include <iostream>
+#include <fstream>  
+#include <string>   
+
 #include "../include/OrdenadorUniversal.hpp"
 using namespace std;
 
-int main() {
+
+
+int main(int argc, char *argv[]) {
     int tam;
     double a, b, c, limCusto;
     unsigned seed;
 
-    cin >> seed;
+
+    string nomeArquivo = argv[1];
 
 
-    cin >> limCusto >> a >> b >> c >> tam;
+    ifstream arquivo(nomeArquivo);  
+
+    if (!arquivo.is_open()) {
+        cerr << "Erro ao abrir o arquivo!" << endl;
+        return 1;  
+    }
+
+    arquivo >> seed >> limCusto >> a >> b >> c >> tam;  
 
     tipo *V = new tipo[tam];
 
     for (int i = 0; i < tam; i++)
-        cin >> V[i];    
-    
-    
+        arquivo >> V[i];  // Lê os elementos do vetor
+
+    arquivo.close();  // Fecha o arquivo
 
 
     OrdenadorUniversal *smartSorter = new OrdenadorUniversal(a, b, c, seed);
