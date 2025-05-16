@@ -19,7 +19,7 @@ int main(int argc, char *argv[]) {
     ifstream arquivo(nomeArquivo);  
 
     if (!arquivo.is_open()) {
-        cerr << "Erro ao abrir o arquivo!" << endl;
+        cerr << "ERRO: Não foi possível abrir o arquivo" << endl;
         return 1;  
     }
 

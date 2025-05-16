@@ -35,7 +35,7 @@ class OrdenadorUniversal
         // Auxiliary methods
         int numeroQuebras(tipo *V, int tam);
         void addQuebras(tipo *V, int tamanho, int quantidade);
-        int menorCusto(int tam);
+        int menorCustoParticao(int tam);
         int menorCustoQuebras(int num);
         void resetStats();
         void resetCustos();
