@@ -22,7 +22,7 @@ int main() {
     
     int limPart = smartSorter->determinaLimiarParticao(V, tam, limCusto);
 
-    int limQuebra = smartSorter->determinaLimiarQuebras(V, tam, limCusto, limQuebra);
+    int limQuebra = smartSorter->determinaLimiarQuebras(V, tam, limCusto, limPart);
 
     
     delete[] V;
