@@ -3,12 +3,11 @@
 #include <iostream>
 #include <iomanip>
 
-
 using namespace std;
 
-OrdenadorUniversal::OrdenadorUniversal(double a, double b, double c, unsigned seed) : a(a), b(b), c(c), seed(seed){
+OrdenadorUniversal::OrdenadorUniversal(double a, double b, double c, unsigned seed, unsigned tamVetCustos) : a(a), b(b), c(c), seed(seed), tamVetCustos(tamVetCustos){
     resetStats();
-    custos = new Estatisticas[20];
+    custos = new Estatisticas[tamVetCustos];
 }
 
 OrdenadorUniversal::~OrdenadorUniversal(){
@@ -18,7 +17,6 @@ OrdenadorUniversal::~OrdenadorUniversal(){
 
 void OrdenadorUniversal::ordenador(tipo *V, int tam, int minTamParticao, int limiarQuebras) {
     int numQuebras = numeroQuebras(V, tam);
-    // cout << "lq = " << limiarQuebras << "  |  numquebras = " << numQuebras << endl;
 
     if(limiarQuebras == -1) // caso especial
         quickSort3Ins(V, 0, tam-1, minTamParticao);
@@ -35,6 +33,10 @@ void OrdenadorUniversal::ordenador(tipo *V, int tam, int minTamParticao, int lim
     
 }
 
+/*
+    Determina a partir de qual quantidade de quebras vale a pena trocar os algoritmos
+    de ordenação.
+*/
 int OrdenadorUniversal::determinaLimiarQuebras(tipo *V, int tam, double limiarCusto, int limParticao){
     // Para não perder o vetor V original
     insertionSort(V, 0, tam-1);
@@ -91,15 +93,17 @@ int OrdenadorUniversal::determinaLimiarQuebras(tipo *V, int tam, double limiarCu
         index++;
         resetCustos();
         cout << fixed << setprecision(6);
-        cout << "numlq " << numQuebras << " limQuebras " << custos[2*limiarQuebras].mps << " lqdiff " << lqdiff << endl; // ARRUMAR - o que é qdiff
+        cout << "numlq " << numQuebras << " limQuebras " << custos[2*limiarQuebras].limTestado << " lqdiff " << lqdiff << endl; // ARRUMAR - o que é qdiff
     } while ((lqdiff > limiarCusto) && (numQuebras >= 5));
     
         // } while ((lqdiff > limiarCusto) && (numQuebras >= 10));
 
-    return custos[limiarQuebras].mps; 
+    return custos[limiarQuebras].limTestado; 
 }
 
-
+/*
+    Estreita a quantidade de quebras a serem testadas ao determinar o limiar de quebras.
+*/
 void OrdenadorUniversal::calculaNovaFaixaQuebra(int limQuebras, int &minQuebras, int &maxQuebras, int &passoQuebras, int numQuebras, float &lqdiff){
     int newMin, newMax;
     
@@ -114,8 +118,8 @@ void OrdenadorUniversal::calculaNovaFaixaQuebra(int limQuebras, int &minQuebras,
         newMax = limQuebras + 1;
     }
     
-    minQuebras = custos[2*newMin].mps;
-    maxQuebras = custos[2*newMax].mps;
+    minQuebras = custos[2*newMin].limTestado;
+    maxQuebras = custos[2*newMax].limTestado;
     
     lqdiff = custos[2*newMax +1].valorCusto - custos[2*newMin +1].valorCusto;
     lqdiff = lqdiff >= 0 ? lqdiff : -lqdiff;
@@ -128,7 +132,10 @@ void OrdenadorUniversal::calculaNovaFaixaQuebra(int limQuebras, int &minQuebras,
 }
 
 
-
+/*
+    Determina a partir de qual tamanho de partição vale a pena trocar os algoritmos
+    de ordenação.
+*/
 int OrdenadorUniversal::determinaLimiarParticao(tipo *V, int tam, double limiarCusto) {
     // Vetor de backup do vetor desordenado original 
     int *backup = new int[tam];
@@ -168,20 +175,23 @@ int OrdenadorUniversal::determinaLimiarParticao(tipo *V, int tam, double limiarC
 
         // Acha índice de menor custo e calcula novos valores
         limParticao = menorCustoParticao(numMPS);
-        calculaNovaFaixa(limParticao, minMPS_valor, maxMPS_valor, passoMPS, numMPS, mpsdiff);
+        calculaNovaFaixaParticao(limParticao, minMPS_valor, maxMPS_valor, passoMPS, numMPS, mpsdiff);
         index++;
         resetCustos();
 
         cout << fixed << setprecision(6);
-        cout << "nummps " << numMPS << " limParticao " << custos[limParticao].mps << " mpsdiff " << mpsdiff << endl; // ARRUMAR - oq é mpsdiff
+        cout << "nummps " << numMPS << " limParticao " << custos[limParticao].limTestado << " mpsdiff " << mpsdiff << endl; // ARRUMAR - oq é mpsdiff
 
     } while ((mpsdiff > limiarCusto) && (numMPS >= 5));
 
     delete[] backup;
-    return custos[limParticao].mps;
+    return custos[limParticao].limTestado;
 }
 
-void OrdenadorUniversal::calculaNovaFaixa(int limParticao, int &minMPS, int &maxMPS, int &passoMPS, int numMPS, float &mpsdiff){
+/*
+    Estreita a faixa de partições a serem testadas ao determinar o limiar de partição.
+*/
+void OrdenadorUniversal::calculaNovaFaixaParticao(int limParticao, int &minMPS, int &maxMPS, int &passoMPS, int numMPS, float &mpsdiff){
     int newMin, newMax;
     
     if (limParticao == 0) {
@@ -195,8 +205,8 @@ void OrdenadorUniversal::calculaNovaFaixa(int limParticao, int &minMPS, int &max
         newMax = limParticao + 1;
     }    
       
-    minMPS = custos[newMin].mps;
-    maxMPS = custos[newMax].mps;
+    minMPS = custos[newMin].limTestado;
+    maxMPS = custos[newMax].limTestado;
 
     mpsdiff = custos[newMax].valorCusto - custos[newMin].valorCusto;
     mpsdiff = mpsdiff >= 0 ? mpsdiff : -mpsdiff;
@@ -245,7 +255,7 @@ int OrdenadorUniversal::menorCustoQuebras(int num) {
 }
 
 void OrdenadorUniversal::registraEstatisticas(int index, unsigned t){
-    custos[index].mps = t;
+    custos[index].limTestado = t;
     custos[index].calls = calls;
     custos[index].cmp = cmp;
     custos[index].move = move;
@@ -270,17 +280,6 @@ int OrdenadorUniversal::numeroQuebras(tipo *V, int tam) {
     return quebras;
 }
 
-// void OrdenadorUniversal::addQuebras(tipo *V, int quantidade){
-//     quantidade++;
-
-//     for (int i = 0; i < quantidade / 2; i++) {
-//         int aux = V[i];
-//         V[i] = V[quantidade - 1 - i];
-//         V[quantidade - 1 - i] = aux;
-
-//     }
-// }
-
 void OrdenadorUniversal::addQuebras(tipo *V, int tamanho, int quantidade){
     int p1 = 0, p2 = 0, temp;
     srand48(seed);
@@ -298,8 +297,6 @@ void OrdenadorUniversal::addQuebras(tipo *V, int tamanho, int quantidade){
         V[p2] = temp;
         p1 = p2 = 0;
     }
-
-    // cout << "addQUebras --> quebrou " << quantidade << " vezes" << endl;
 }
 
 void OrdenadorUniversal::resetStats(){
@@ -308,13 +305,18 @@ void OrdenadorUniversal::resetStats(){
     calls = 0;
 }
 
+/*
+    Reseta o vetor de custos
+*/
 void OrdenadorUniversal::resetCustos(){
-    for (int i = 0; i < 6; i++)
+    for (int i = 0; i < tamVetCustos; i++)
         custos[i].valorCusto = -1;
 }
 
-
-void OrdenadorUniversal::swap(tipo &a, int &b){
+/*
+    Troca dois itens de um vetor de posição
+*/
+void OrdenadorUniversal::swap(tipo &a, tipo &b){
     tipo temp = a;
     a=b;
     b=temp;
@@ -322,7 +324,9 @@ void OrdenadorUniversal::swap(tipo &a, int &b){
     
 }
 
-
+/*
+    Encontra a mediana de três números
+*/
 int OrdenadorUniversal::median(tipo a, tipo b, tipo c){
     if(a >= b)  
         if (b>=c)
@@ -337,7 +341,9 @@ int OrdenadorUniversal::median(tipo a, tipo b, tipo c){
         
 }
 
-// quicksort partition using median of 3
+/*
+    Função auxiliar do QuickSort. Calcula sua partição.
+*/
 void OrdenadorUniversal::partition3(tipo * A, int l, int r, int *i, int *j){
     // using the median(start, middle, end) as the pivot, we avoid the worst scenarios.
     // maybe I can swap the pivot and the last element and just do the partition normally. --> NO, it is not what the want!!!!
@@ -378,45 +384,39 @@ void OrdenadorUniversal::partition3(tipo * A, int l, int r, int *i, int *j){
     } while (*i <= *j);
 }
 
-// quicksort with insertion for small partitions and median of 3
-void OrdenadorUniversal::quickSort3(tipo * A, int l, int r) { // ARRUMAR - acho q é sem insertio, visto q o insertion é em outra func
-    if(l >= r)
-    return;
 
-    int i, j;
 
-    partition3(A, l, r, &i, &j);
-
-    calls++;
-    quickSort3(A, l, j);
-
-    calls++;
-    quickSort3(A, i, r);
-}
-
-// quicksort with insertion for small partitions and median of 3
+/*
+    QuickSort com Insertion Sort para certos tamanhos de partições.
+*/
 void OrdenadorUniversal::quickSort3Ins(tipo * A, int l, int r, int partition) { 
     calls+=2; // para partição e pro quickSort3Ins
     int i, j;
     partition3(A, l, r, &i, &j);
 
-    if(j > l)
-      if(j - l < partition)
-        insertionSort(A, l, j);  
-      else
+    if(j > l){
+      if(j - l < partition){
+        insertionSort(A, l, j);
+      }
+      else{
         quickSort3Ins(A, l, j, partition);
-  
-    if(r > i)
-      if(r - i < partition)
+      }
+    }
+    if(r > i){
+      if(r - i < partition){
         insertionSort(A, i, r);  
-      else
+      }
+      else{
         quickSort3Ins(A, i, r, partition);
+      }
+    }
   }
   
 
+  /*
+    Algoritmo de ordenação Insertion Sort
+  */
 void OrdenadorUniversal::insertionSort(tipo V[], int l, int r){
-    // with an element i, we consider we have a i-1 ordered array. So we compare the element i
-    // with the previous ones and swap it until it is not smaller than an element N. At this point we stop
     calls++;
     int i, j;
     tipo key;

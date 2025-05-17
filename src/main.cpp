@@ -10,7 +10,7 @@ using namespace std;
 int main(int argc, char *argv[]) {
     int tam;
     double a, b, c, limCusto;
-    unsigned seed;
+    unsigned seed, tamVetCustos = 20;
 
 
     string nomeArquivo = argv[1];
@@ -33,13 +33,13 @@ int main(int argc, char *argv[]) {
     arquivo.close();  // Fecha o arquivo
 
 
-    OrdenadorUniversal *smartSorter = new OrdenadorUniversal(a, b, c, seed);
+    OrdenadorUniversal *smartSorter = new OrdenadorUniversal(a, b, c, seed, tamVetCustos);
     
     cout << "size " << tam << " seed " << seed << " breaks " << smartSorter->numeroQuebras(V, tam) << endl;
 
     int limPart = smartSorter->determinaLimiarParticao(V, tam, limCusto);
 
-    int limQuebra = smartSorter->determinaLimiarQuebras(V, tam, limCusto, limPart);
+   smartSorter->determinaLimiarQuebras(V, tam, limCusto, limPart);
 
     
     delete[] V;

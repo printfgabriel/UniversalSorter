@@ -6,19 +6,19 @@ typedef int tipo;
 class OrdenadorUniversal
 {
     struct Estatisticas{
-        unsigned cmp, move, calls, mps;
+        unsigned cmp, move, calls, limTestado;
         long double valorCusto;
     };
     
 
     private:
-        unsigned cmp, move, calls, seed;
-        long double a, b, c;
+        double a, b, c;
+        unsigned cmp, move, calls, seed, tamVetCustos;
 
         Estatisticas *custos;
         
     public:
-        OrdenadorUniversal(double a, double b, double c, unsigned seed);
+        OrdenadorUniversal(double a, double b, double c, unsigned seed, unsigned tamVetCustos);
         ~OrdenadorUniversal();  
     
         // limiarCusto
@@ -27,8 +27,11 @@ class OrdenadorUniversal
 
         // limiarParticao
         void ordenador(tipo *V, int tam, int minTamParticao, int limiarQuebras);
+
         int determinaLimiarParticao(tipo *V, int tam, double limiarCusto);
-        void calculaNovaFaixa(int limParticao, int &minMPS, int &maxMPS, int &passoMPS, int numMPS, float &mpsdiff);
+        void calculaNovaFaixaParticao(int limParticao, int &minMPS, int &maxMPS, int &passoMPS, int numMPS, float &mpsdiff);
+
+
         void registraEstatisticas(int numMPS, unsigned t);
         void imprimeEstatisticas(int numMPS);
 
@@ -44,7 +47,6 @@ class OrdenadorUniversal
         // Quicksort methods
         int median(tipo a, tipo b, tipo c);
         void partition3(tipo * A, int l, int r, int *i, int *j);
-        void quickSort3(tipo * A, int l, int r);
         void quickSort3Ins(tipo * A, int l, int r, int partition);
 
         // InsertionSort methods
