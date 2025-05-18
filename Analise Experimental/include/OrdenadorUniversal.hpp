@@ -1,7 +1,34 @@
 #ifndef ORDENADOR_HPP
 #define ORDENADOR_HPP
 
-typedef int tipo;
+#include <cstring>
+
+using namespace std;
+
+typedef struct tipo {
+    char key[KEYSZ];
+    char payload[PLSZ];
+
+    bool operator<(const tipo& other) const {
+        return strcmp(key, other.key) < 0;
+    }
+    bool operator>(const tipo& other) const {
+        return strcmp(key, other.key) > 0;
+    }
+    bool operator<=(const tipo& other) const {
+        return strcmp(key, other.key) <= 0;
+    }
+    bool operator>=(const tipo& other) const {
+        return strcmp(key, other.key) >= 0;
+    }
+    bool operator==(const tipo& other) const {
+        return strcmp(key, other.key) == 0;
+    }
+    bool operator!=(const tipo& other) const {
+        return !(*this == other);
+    }
+} tipo;
+
 
 class OrdenadorUniversal
 {
@@ -45,13 +72,16 @@ class OrdenadorUniversal
         void swap(tipo &a, tipo &b);
 
         // Quicksort methods
-        int median(tipo a, tipo b, tipo c);
+        tipo median(tipo a, tipo b, tipo c);
         void partition3(tipo * A, int l, int r, int *i, int *j);
         void quickSort3Ins(tipo * A, int l, int r, int partition);
 
         // InsertionSort methods
         void insertionSort(tipo V[], int l, int r);
 
-    };
 
+
+    };
+    
+    
 #endif

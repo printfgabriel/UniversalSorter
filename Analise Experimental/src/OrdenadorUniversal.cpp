@@ -2,12 +2,14 @@
 
 #include <iostream>
 #include <iomanip>
+#include <cstring>
 
-#define tamVetCustos 20
+#define tamVetCustos 15
 
 using namespace std;
 
-OrdenadorUniversal::OrdenadorUniversal(double a, double b, double c, unsigned seed) : a(a), b(b), c(c), seed(seed){
+OrdenadorUniversal::OrdenadorUniversal(double a, double b, double c, unsigned seed) 
+    : a(a), b(b), c(c), seed(seed){
     resetStats();
     custos = new Estatisticas[tamVetCustos];
 }
@@ -23,9 +25,10 @@ void OrdenadorUniversal::ordenador(tipo *V, int tam, int minTamParticao, int lim
         cerr << "Erro: Array de entrada V é nulo em OrdenadorUniversal::ordenador." << endl;
         return;
     }
-
     int numQuebras = numeroQuebras(V, tam);
 
+    // Analise Experimental
+    resetCustos();
 
     if (numQuebras < limiarQuebras){
         insertionSort(V, 0, tam-1);   
@@ -37,6 +40,9 @@ void OrdenadorUniversal::ordenador(tipo *V, int tam, int minTamParticao, int lim
         insertionSort(V, 0, tam-1);
     }
     
+    // Analise Experimental
+    registraEstatisticas(0, tamVetCustos);
+    imprimeEstatisticas(0);
 }
 
 /*
@@ -164,7 +170,7 @@ int OrdenadorUniversal::determinaLimiarParticao(tipo *V, int tam, double limiarC
     }
 
     // Vetor de backup do vetor desordenado original 
-    int *backup = new int[tam];
+    tipo *backup = new tipo[tam];
     for (int i = 0; i < tam; i++) {
         backup[i] = V[i];
     }
@@ -327,7 +333,8 @@ void OrdenadorUniversal::addQuebras(tipo *V, int tamanho, int quantidade){
         return;
     }
 
-    int p1 = 0, p2 = 0, temp;
+    int p1 = 0, p2 = 0;
+    tipo temp;
     srand48(seed);
 
     for (int t = 0; t < quantidade; t++) {
@@ -373,7 +380,7 @@ void OrdenadorUniversal::swap(tipo &a, tipo &b){
 /*
     Encontra a mediana de três números
 */
-int OrdenadorUniversal::median(tipo a, tipo b, tipo c){
+tipo OrdenadorUniversal::median(tipo a, tipo b, tipo c){
     if(a >= b)  
         if (b>=c)
             return b;
@@ -501,5 +508,4 @@ void OrdenadorUniversal::insertionSort(tipo V[], int l, int r){
 
     return;
 }
-
 

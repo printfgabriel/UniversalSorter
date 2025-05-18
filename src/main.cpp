@@ -10,7 +10,7 @@ using namespace std;
 int main(int argc, char *argv[]) {
     int tam;
     double a, b, c, limCusto;
-    unsigned seed, tamVetCustos = 20;
+    unsigned seed;
 
 
     string nomeArquivo = argv[1];
@@ -18,6 +18,7 @@ int main(int argc, char *argv[]) {
 
     ifstream arquivo(nomeArquivo);  
 
+    // Programação Defensiva
     if (!arquivo.is_open()) {
         cerr << "ERRO: Não foi possível abrir o arquivo" << endl;
         return 1;  
@@ -33,7 +34,7 @@ int main(int argc, char *argv[]) {
     arquivo.close();  // Fecha o arquivo
 
 
-    OrdenadorUniversal *smartSorter = new OrdenadorUniversal(a, b, c, seed, tamVetCustos);
+    OrdenadorUniversal *smartSorter = new OrdenadorUniversal(a, b, c, seed);
     
     cout << "size " << tam << " seed " << seed << " breaks " << smartSorter->numeroQuebras(V, tam) << endl;
 
