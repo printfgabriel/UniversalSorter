@@ -1,6 +1,6 @@
 # Configurações do compilador
 CXX = g++
-CXXFLAGS = -std=c++11 -Wall -Wextra -Iinclude -lm
+CXXFLAGS = -std=c++11 -Wall -Wextra -Iinclude -lm -I /home/gabriel/Documents/eigen-3.4.0
 DEFINES = -DKEYSZ=$(KEYSZ) -DPLSZ=$(PLSZ) -DVETSZ=$(VETSZ)
 
 # Estrutura de diretórios
