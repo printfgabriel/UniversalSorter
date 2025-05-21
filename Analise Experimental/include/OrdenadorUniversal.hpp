@@ -79,6 +79,7 @@ class OrdenadorUniversal
         // InsertionSort methods
         void insertionSort(tipo V[], int l, int r);
 
+        void quickSort3(tipo * A, int l, int r);
 
 
     };

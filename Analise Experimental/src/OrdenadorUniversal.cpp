@@ -4,7 +4,7 @@
 #include <iomanip>
 #include <cstring>
 
-#define tamVetCustos 15
+#define tamVetCustos 30
 
 using namespace std;
 
@@ -21,6 +21,7 @@ OrdenadorUniversal::~OrdenadorUniversal(){
 
 void OrdenadorUniversal::ordenador(tipo *V, int tam, int minTamParticao, int limiarQuebras) {
     // Programação Defensiva.
+    
     if (V == nullptr){
         cerr << "Erro: Array de entrada V é nulo em OrdenadorUniversal::ordenador." << endl;
         return;
@@ -41,8 +42,10 @@ void OrdenadorUniversal::ordenador(tipo *V, int tam, int minTamParticao, int lim
     }
     
     // Analise Experimental
-    registraEstatisticas(0, tamVetCustos);
+    registraEstatisticas(0, 11);
     imprimeEstatisticas(0);
+    resetStats();
+    resetCustos();
 }
 
 /*
@@ -350,6 +353,8 @@ void OrdenadorUniversal::addQuebras(tipo *V, int tamanho, int quantidade){
         V[p2] = temp;
         p1 = p2 = 0;
     }
+
+    
 }
 
 void OrdenadorUniversal::resetStats(){
@@ -509,3 +514,19 @@ void OrdenadorUniversal::insertionSort(tipo V[], int l, int r){
     return;
 }
 
+// quicksort with median of 3
+void OrdenadorUniversal::quickSort3(tipo * A, int l, int r) { 
+    if(l >= r)
+      return;
+    
+    int i, j;
+    
+    partition3(A, l, r, &i, &j);
+    
+    calls++;
+    quickSort3(A, l, j);
+    
+    calls++;
+    quickSort3(A, i, r);
+  
+}
