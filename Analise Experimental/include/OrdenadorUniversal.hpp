@@ -6,8 +6,8 @@
 using namespace std;
 
 typedef struct tipo {
-    char key[KEYSZ];
-    char payload[PLSZ];
+    char key[KEYSZ+1];
+    char payload[PLSZ+1];
 
     bool operator<(const tipo& other) const {
         return strcmp(key, other.key) < 0;
@@ -72,7 +72,7 @@ class OrdenadorUniversal
         void swap(tipo &a, tipo &b);
 
         // Quicksort methods
-        tipo median(tipo a, tipo b, tipo c);
+        tipo median(tipo& a, tipo& b, tipo& c);
         void partition3(tipo * A, int l, int r, int *i, int *j);
         void quickSort3Ins(tipo * A, int l, int r, int partition);
 

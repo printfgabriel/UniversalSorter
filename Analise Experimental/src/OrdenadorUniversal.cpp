@@ -331,27 +331,26 @@ int OrdenadorUniversal::numeroQuebras(tipo *V, int tam) {
 }
 
 void OrdenadorUniversal::addQuebras(tipo *V, int tamanho, int quantidade){
-    if(V == nullptr){
+    if(V == nullptr) {
         cerr << "ERRO: vetor V é nulo em OrdenadorUniversal::addQuebras";
         return;
     }
 
-    int p1 = 0, p2 = 0;
-    tipo temp;
-    srand48(seed);
+    srand48(seed); // Inicializa apenas uma vez
 
     for (int t = 0; t < quantidade; t++) {
-
-        while (p1 == p2) {
-            p1 = (int)(drand48() * tamanho);
-            p2 = (int)(drand48() * tamanho);
-        }
+        int p1, p2;
         
-        /* Realiza a troca para introduzir uma quebra */
-        temp = V[p1];
+        // Garante que p1 e p2 são diferentes
+        do {
+            p1 = static_cast<int>(drand48() * tamanho);
+            p2 = static_cast<int>(drand48() * tamanho);
+        } while (p1 == p2);
+        
+        // Realiza a troca
+        tipo temp = V[p1];
         V[p1] = V[p2];
         V[p2] = temp;
-        p1 = p2 = 0;
     }
 
     
@@ -367,8 +366,10 @@ void OrdenadorUniversal::resetStats(){
     Reseta o vetor de custos
 */
 void OrdenadorUniversal::resetCustos(){
-    for (int i = 0; i < tamVetCustos; i++)
+    for (int i = 0; i < tamVetCustos; i++){
         custos[i].valorCusto = -1;
+        custos[i].calls = 0;
+    }
 }
 
 /*
@@ -385,7 +386,7 @@ void OrdenadorUniversal::swap(tipo &a, tipo &b){
 /*
     Encontra a mediana de três números
 */
-tipo OrdenadorUniversal::median(tipo a, tipo b, tipo c){
+tipo OrdenadorUniversal::median(tipo& a, tipo& b, tipo& c){
     if(a >= b)  
         if (b>=c)
             return b;
@@ -408,15 +409,8 @@ void OrdenadorUniversal::partition3(tipo * V, int l, int r, int *i, int *j){
   
     int meio = l + (r - l) / 2;
     
-    tipo pivot_val = median(V[l], V[meio], V[r]);
-  
-    int pivot_index;
-    if (pivot_val == V[l]) pivot_index = l;
-    else if (pivot_val == V[meio]) pivot_index = meio;
-    else pivot_index = r;
-  
-    tipo pivot = V[pivot_index];
-  
+    tipo pivot = median(V[l], V[meio], V[r]);
+
     do {
         while (pivot > V[*i]) {
             cmp++;
@@ -448,6 +442,10 @@ void OrdenadorUniversal::quickSort3Ins(tipo * V, int l, int r, int partition) {
         cerr << "Erro: Array de entrada V é nulo em OrdenadorUniversal::quickSort3Ins." << endl;
         return;
     }
+    // if(r >= VETSZ){
+    //     cerr << "Acessando regiao inválida OrdenadorUniversal::quickSort3Ins (" << r << endl;
+    //     return;
+    // }
 
     calls+=2; // para partição e pro quickSort3Ins
     int i, j;
